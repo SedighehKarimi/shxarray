@@ -11,7 +11,7 @@ import pandas as pd
 
 from shxarray.core.logging import logger
 
-def polygon2sh(polygeom,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
+def polygon2sh(polygon,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
     """
     Convert a mask defined by a polygon to spherical harmonic coefficients.
     This routine currently uses a simple integration approach
@@ -42,8 +42,20 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
     while idres > 360/nmax/4:
         idres=idres/2
     
+    
+    # if "PFAF_ID" in polygon.columns:
+    #     polygon = polygon.dissolve(by = "PFAF_ID").reset_index()
+        
+    polygeom = polygon.geometry
+    
     if type(polygeom) != gpd.GeoSeries:
         polygeom=gpd.GeoSeries(polygeom)
+        
+    # Handle MultiPolygon: Convert each MultiPolygon into a single Polygon (convex hull)
+    for idx, geom in polygeom.items():
+        if geom.geom_type == "MultiPolygon":
+            polygeom[idx] = geom.convex_hull
+            
 
     #create a grid
     lon=np.arange(-180+idres/2,180,idres)
@@ -90,9 +102,3 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
     dsout=dtmp.sh.analysis(nmax) 
 
     return dsout
-
-
-
-
-
-
