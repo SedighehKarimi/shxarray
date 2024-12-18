@@ -43,8 +43,9 @@ def polygon2sh(polygon,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
         idres=idres/2
     
     
-    # if "PFAF_ID" in polygon.columns:
-    #     polygon = polygon.dissolve(by = "PFAF_ID").reset_index()
+    if "PFAF_ID" in polygon.columns:
+        polygon = polygon.dissolve(by = "PFAF_ID").reset_index()
+        auxcoord = polygon["PFAF_ID"]  # Update auxcoord to match dissolved polygons
         
     polygeom = polygon.geometry
     
@@ -54,6 +55,7 @@ def polygon2sh(polygon,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
     # Handle MultiPolygon: Convert each MultiPolygon into a single Polygon (convex hull)
     for idx, geom in polygeom.items():
         if geom.geom_type == "MultiPolygon":
+            #basin = polygon.dissolve(by = "PFAF_ID").reset_index()
             polygeom[idx] = geom.convex_hull
             
 
