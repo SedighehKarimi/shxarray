@@ -269,7 +269,7 @@ def read_sinex(file_or_obj,stopatmat=False):
     # read first line
     header=file_or_obj.readline().split()
     if header[1] not in compatversions:
-        raise RuntimeError(f"read_sinex is not compatible with {header[1]}")
+        raise RuntimeError(f"read_sinex is not compatible with {headerline[1]}")
     
     #nest=int(header[-3])
     try:
